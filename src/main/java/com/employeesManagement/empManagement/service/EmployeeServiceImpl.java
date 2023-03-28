@@ -4,12 +4,15 @@ import com.employeesManagement.empManagement.DTO.EmployeeDTO;
 import com.employeesManagement.empManagement.DTO.EmployeeSaveDTO;
 import com.employeesManagement.empManagement.DTO.EmployeeUpdateDTO;
 import com.employeesManagement.empManagement.entity.Employee;
+import com.employeesManagement.empManagement.errorHandler.ResourceNotFoundException;
 import com.employeesManagement.empManagement.repository.EmployeeRepo;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService {
@@ -54,26 +57,30 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public String updateEmployee(EmployeeUpdateDTO employeeUpdateDTO) {
-        if (employeeRepo.existsById(employeeUpdateDTO.getEmployeeId())) {
-            Employee employee = employeeRepo.getById(employeeUpdateDTO.getEmployeeId());
+    public EmployeeDTO getEmployeeById(int id) {
+        Employee employee = employeeRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Employee not found with id " + id));
+        return new EmployeeDTO(employee.getEmployeeId(), employee.getEmployeeName(), employee.getEmployeeEmail(), employee.getEmployeeAddress(), employee.getEmployeePhone(), employee.getEmployeeSalary(),employee.getEmployeeHr());
+    }
 
+
+
+    @Override
+    public String updateEmployee(int employeeId, EmployeeUpdateDTO employeeUpdateDTO) {
+        Optional<Employee> employeeOptional = employeeRepo.findById(employeeId);
+        if (employeeOptional.isPresent()) {
+            Employee employee = employeeOptional.get();
             employee.setEmployeeName(employeeUpdateDTO.getEmployeeName());
             employee.setEmployeeEmail(employeeUpdateDTO.getEmployeeEmail());
             employee.setEmployeeAddress(employeeUpdateDTO.getEmployeeAddress());
             employee.setEmployeePhone(employeeUpdateDTO.getEmployeePhone());
             employee.setEmployeeSalary(employeeUpdateDTO.getEmployeeSalary());
             employee.setEmployeeHr(employeeUpdateDTO.getEmployeeHr());
-
             employeeRepo.save(employee);
-
-            return "Updated Successfully!";
-
+            return "Employee updated successfully with id " + employeeId;
         } else {
-            System.out.println("Customer Id does not exits");
+            throw new ResourceNotFoundException("Employee not found for this id :: " + employeeId);
         }
-
-        return null;
     }
 
     @Override

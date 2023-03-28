@@ -24,7 +24,6 @@ public class Hr {
     @Column(name = "hr_salary", length = 15)
     private long hrSalary;
 
-
     public Hr() {
     }
 

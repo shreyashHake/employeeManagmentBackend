@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("api/v1/employee")
 public class EmployeeController {
     @Autowired
@@ -27,10 +27,18 @@ public class EmployeeController {
         return allCustomers;
     }
 
-    @PutMapping(path = "/update")
-    public String updateEmployee(@RequestBody EmployeeUpdateDTO employeeUpdateDTO) {
-        return employeeService.updateEmployee(employeeUpdateDTO);
+    @GetMapping(path = "/get/{id}")
+    public EmployeeDTO getEmployeeById(@PathVariable int id) {
+        EmployeeDTO employee = employeeService.getEmployeeById(id);
+        return employee;
     }
+
+
+    @PutMapping(path = "/update/{employeeId}")
+    public String updateEmployee(@PathVariable int employeeId, @RequestBody EmployeeUpdateDTO employeeUpdateDTO) {
+        return employeeService.updateEmployee(employeeId, employeeUpdateDTO);
+    }
+
     @DeleteMapping(path = "/delete/{id}")
     public String deleteCustomer(@PathVariable(value = "id") int id) {
         boolean deletecustomer = employeeService.deleteEmployee(id);
